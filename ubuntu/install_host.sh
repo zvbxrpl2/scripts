@@ -28,6 +28,7 @@ sudo apt -y install nvidia-driver-535
 sudo apt -y install curl
 sudo apt -y install tree
 sudo apt -y install wget gpg
+sudo apt -y install keepassxc
 
 python3 -m pip install -U gallery-dl
 python3 -m pip install -U yt-dlp
@@ -43,13 +44,6 @@ sudo apt -y install apt-transport-https
 sudo apt -y update
 sudo apt -y install code # or code-insiders
 
-## ProtonVPN
-
-wget https://repo.protonvpn.com/debian/dists/stable/main/binary-all/protonvpn-stable-release_1.0.3_all.deb
-sudo apt-get -y install ./protonvpn-stable-release_1.0.3_all.deb
-sudo apt-get -y update
-rm -rf protonvpn-stable-release_1.0.3_all.deb
-
 ## Aliases
 
 if grep --quiet "alias emacs" ~/.bashrc; then
@@ -61,8 +55,8 @@ fi
 
 # Replace Snap Firefox with Apt Firefox
 
-snap disable firefox
-snap remove --purge firefox
+sudo snap disable firefox
+sudo snap remove --purge firefox
 
 sudo add-apt-repository ppa:mozillateam/ppa -y
 
@@ -76,4 +70,11 @@ Pin: version 1:1snap1-0ubuntu2
 Pin-Priority: -1
 ' | sudo tee /etc/apt/preferences.d/mozilla-firefox
 
-sudo apt install firefox -y
+sudo apt install firefox -y --allow-downgrades
+
+## VMWare Player
+
+sudo apt install build-essential linux-headers-generic -y
+wget --user-agent="Mozilla/5.0 (X11; Linux x86_64; rv:60.0) Gecko/20100101 Firefox/60.0" https://www.vmware.com/go/getplayer-linux
+chmod +x getplayer-linux
+sudo ./getplayer-linux --required --eulas-agreed
