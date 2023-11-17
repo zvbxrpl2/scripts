@@ -53,7 +53,7 @@ else
 	echo 'alias emacs="emacs -nw"' >> ~/.bashrc
 fi
 
-# Replace Snap Firefox with Apt Firefox
+## Replace Snap Firefox with Apt Firefox
 
 sudo snap disable firefox
 sudo snap remove --purge firefox
@@ -71,3 +71,9 @@ Pin-Priority: -1
 ' | sudo tee /etc/apt/preferences.d/mozilla-firefox
 
 sudo apt install firefox -y --allow-downgrades
+
+## Veracrypt
+
+sudo add-apt-repository ppa:unit193/encryption -y
+sudo apt update -y
+sudo apt install veracrypt -y
