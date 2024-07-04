@@ -24,25 +24,20 @@ sudo apt -y install git-lfs
 sudo apt -y install htop
 sudo apt -y install neofetch
 sudo apt -y install emacs
-sudo apt -y install nvidia-driver-535
 sudo apt -y install curl
 sudo apt -y install tree
 sudo apt -y install wget gpg
 sudo apt -y install keepassxc
+sudo apt -y install libfuse2
 
 python3 -m pip install -U gallery-dl
 python3 -m pip install -U yt-dlp
 
-## VS Code
+## Veracrypt
 
-wget -qO- https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > packages.microsoft.gpg
-sudo install -D -o root -g root -m 644 packages.microsoft.gpg /etc/apt/keyrings/packages.microsoft.gpg
-sudo sh -c 'echo "deb [arch=amd64,arm64,armhf signed-by=/etc/apt/keyrings/packages.microsoft.gpg] https://packages.microsoft.com/repos/code stable main" > /etc/apt/sources.list.d/vscode.list'
-rm -f packages.microsoft.gpg
-
-sudo apt -y install apt-transport-https
-sudo apt -y update
-sudo apt -y install code # or code-insiders
+sudo add-apt-repository ppa:unit193/encryption -y
+sudo apt update -y
+sudo apt install veracrypt -y
 
 ## Aliases
 
@@ -72,8 +67,7 @@ Pin-Priority: -1
 
 sudo apt install firefox -y --allow-downgrades
 
-## Veracrypt
+## Git
 
-sudo add-apt-repository ppa:unit193/encryption -y
-sudo apt update -y
-sudo apt install veracrypt -y
+git config --global user.email "zvbxrpl@protonmail.com"
+git config --global user.name "zvbxrpl"
