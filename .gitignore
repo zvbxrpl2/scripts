@@ -1,2 +1,12 @@
+# Editor
 .vscode/
 *~
+*.bak
+
+# Generated: bin/ symlinks are machine-specific (absolute paths).
+# Recreate with: ./link_all.sh
+bin/
+
+# Local state / generated output
+media/archive.txt
+resolutions.txt
