@@ -1,0 +1,91 @@
+# download_channels channel list
+# One entry per line:
+#   - a bare URL                    (label auto-derived from the URL)
+#   - "label url"  (label + space)  (explicit label used for --only matching)
+#   - a "#" comment or blank line   (ignored)
+#
+# List channels:    download_channels --list
+# Filter channels:  download_channels --only <label-or-url-substring>
+# e.g.             download_channels --only veritasium
+#                  download_channels --only Digikey
+
+https://www.youtube.com/@WelchLabs/videos
+https://www.youtube.com/@WoodenToby/videos
+https://www.youtube.com/@hoff._world/videos
+https://www.youtube.com/@computablesecrets/videos
+
+# Digikey
+Digikey https://www.youtube.com/playlist?list=PLEBQazB0HUyTpoJoZecRK6PpDG31Y7RPB
+Digikey https://www.youtube.com/playlist?list=PLEBQazB0HUyQ4hAPU1cJED6t3DU0h34bz
+Digikey https://www.youtube.com/playlist?list=PLEBQazB0HUyRYuzfi4clXsKUSgorErmBv
+Digikey https://www.youtube.com/playlist?list=PLEBQazB0HUyT1WmMONxRZn9NmQ_9CIKhb
+Digikey https://www.youtube.com/playlist?list=PLEBQazB0HUyTmK2zdwhaf8bLwuEaDH-52
+
+# Rohde and Schwarz
+Rohde https://www.youtube.com/playlist?list=PLKxVoO5jUTlvsVtDcqrVn0ybqBVlLj2z8
+
+https://www.youtube.com/@em3755/videos
+https://www.youtube.com/@parinaznaseri/videos
+https://www.youtube.com/@nandland/videos
+https://www.youtube.com/@FPGAsforBeginners/videos
+
+https://www.youtube.com/@kanepixels/videos
+https://www.youtube.com/@BrianBDouglas/videos
+https://www.youtube.com/@youngmoo-kim/videos
+https://www.youtube.com/@Wendoverproductions/videos
+https://www.youtube.com/TechnologyConnections/videos
+https://www.youtube.com/@TheEfficientEngineer/videos
+https://www.youtube.com/@BobbyBroccoli/videos
+https://www.youtube.com/@veritasium/videos
+https://www.youtube.com/@theserialport/videos
+https://www.youtube.com/@OldLegoGuy/videos
+https://www.youtube.com/@mathemaniac/videos
+https://www.youtube.com/@braintruffle/videos
+https://www.youtube.com/@2swap/videos
+https://www.youtube.com/@EggyBricks/videos
+https://www.youtube.com/@3blue1brown/videos
+
+https://www.youtube.com/@VisualElectric_/videos
+https://www.youtube.com/@SheafificationOfG/videos
+https://www.youtube.com/@JCS/videos
+
+https://www.youtube.com/@Aleph0/videos
+https://www.youtube.com/@AndrejKarpathy/videos
+https://www.youtube.com/@Asianometry/videos
+https://www.youtube.com/@BatteryPoweredBricks/videos
+https://www.youtube.com/@DavesGarage/videos
+https://www.youtube.com/@EngineeringMindset/videos
+https://www.youtube.com/@hoe_math/videos
+https://www.youtube.com/@knitronics/videos
+https://www.youtube.com/@lauriewired/videos
+https://www.youtube.com/@lemmino/videos
+https://www.youtube.com/@MattKC/videos
+https://www.youtube.com/@Mutual_Information/videos
+https://www.youtube.com/@naohah/videos
+https://www.youtube.com/@NickonPlanetRipple/videos
+https://www.youtube.com/@PolylogCS/videos
+https://www.youtube.com/@RRSlugger/videos
+https://www.youtube.com/@TrikBrix/videos
+https://www.youtube.com/@Unbrickme/videos
+https://www.youtube.com/@upandatom/videos
+https://www.youtube.com/@vintagebricks/videos
+https://www.youtube.com/@VK3FS/videos
+https://www.youtube.com/@ylraisa/videos
+https://www.youtube.com/@YTomS/videos
+
+# --- disabled (uncomment to include) ---
+# https://www.youtube.com/@ThisisAutomation/videos
+# https://www.youtube.com/@formula6033/videos
+# https://www.youtube.com/@videogameflashback/videos
+# https://www.youtube.com/@RockinPixieGaming/videos
+# https://www.youtube.com/@WeicheWotanWeiche/videos
+# https://www.youtube.com/@drspock888/videos
+# https://www.youtube.com/@dodoid/videos
+# https://www.youtube.com/@SoundcircusJM/videos
+# https://www.youtube.com/playlist?list=PLywxmTaHNUNzbZAAHdpAr3vL4ByyaEsSi
+# https://www.youtube.com/playlist?list=PLywxmTaHNUNz2cHKw9uFaIidmxykVceBI
+# https://www.youtube.com/playlist?list=PLywxmTaHNUNyKmgF70q8q3QHYIw_LFbrX
+# https://www.youtube.com/playlist?list=PLUl4u3cNGP63ZWyJMdWIVtyweopUN3xt3
+# https://www.youtube.com/playlist?list=PLUl4u3cNGP62UTc77mJoubhDELSC8lfR0
+# https://www.youtube.com/playlist?list=PLKxVoO5jUTlvsVtDcqrVn0ybqBVlLj2z8
+# https://www.youtube.com/playlist?list=PLbtm7s7Q26xPmLbnvEoU13RqO1Up9wu5r

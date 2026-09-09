@@ -4,98 +4,163 @@
 # Format (1080p mp4/mp3), --ignore-errors, and metadata come from
 # ~/.config/yt-dlp.conf — do not duplicate them here.
 
-base_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-archive="$base_dir/archive.txt"
+set -uo pipefail
 
-dl() {
-  local url="$1"
-  yt-dlp --download-archive "$archive" \
-    -o "%(playlist,channel)s/%(title,id)s.%(ext)s" \
-    "$url"
+# Resolve the script's real directory even when invoked via a symlink
+# (e.g. bin/download_channels -> media/download_channels.sh), so channels.txt
+# and archive.txt are found next to the actual script, not the link.
+src="${BASH_SOURCE[0]}"
+if command -v readlink >/dev/null 2>&1; then
+  src="$(readlink -f "$src" 2>/dev/null)" || src="${BASH_SOURCE[0]}"
+fi
+base_dir="$(cd "$(dirname "$src")" && pwd)"
+archive="${YT_ARCHIVE:-$base_dir/archive.txt}"
+list_file="${CHANNELS_FILE:-$base_dir/channels.txt}"
+out_template="%(playlist,channel)s/%(title,id)s.%(ext)s"
+
+# --- options (defaults) ---
+only=""
+audio_only=0
+dry_run=0
+list_only=0
+
+usage() {
+  cat <<EOF
+Usage: $(basename "$0") [options]
+
+Downloads whole YouTube channels/playlists (from $list_file) into
+per-channel folders, deduping across runs via a download archive.
+Format (1080p mp4/mp3), --ignore-errors, and metadata come from
+~/.config/yt-dlp.conf.
+
+Options:
+  --list                 List configured channels and exit (no download)
+  --only <match>         Only channels whose label or URL contains <match>
+  --audio-only           Download audio only (pass -x to yt-dlp)
+  --dry-run              Simulate; show what would download (--simulate)
+  -h, --help             Show this help and exit
+
+Environment:
+  CHANNELS_FILE   Path to the channel list (default: <script dir>/channels.txt)
+  YT_ARCHIVE      Path to the download archive file
+
+Examples:
+  $(basename "$0") --list
+  $(basename "$0") --only veritasium
+  $(basename "$0") --only Digikey --audio-only --dry-run
+EOF
 }
 
-dl https://www.youtube.com/@WelchLabs/videos
+die() { echo "error: $*" >&2; exit 1; }
 
-dl https://www.youtube.com/@WoodenToby/videos
-dl https://www.youtube.com/@hoff._world/videos
-# dl https://www.youtube.com/@ThisisAutomation/videos
-dl https://www.youtube.com/@computablesecrets/videos
+parse_args() {
+  while [[ $# -gt 0 ]]; do
+    case "$1" in
+      --list)         list_only=1; shift ;;
+      --only)         [[ $# -ge 2 ]] || die "--only requires an argument"; only="$2"; shift 2 ;;
+      --audio-only)   audio_only=1; shift ;;
+      --dry-run)      dry_run=1; shift ;;
+      -h|--help)      usage; exit 0 ;;
+      -*)             die "unknown option: $1 (see --help)" ;;
+      *)              : ;; # ignore stray positional args
+    esac
+  done
+}
 
-# Digikey
-dl https://www.youtube.com/playlist?list=PLEBQazB0HUyTpoJoZecRK6PpDG31Y7RPB
-dl https://www.youtube.com/playlist?list=PLEBQazB0HUyQ4hAPU1cJED6t3DU0h34bz
-dl https://www.youtube.com/playlist?list=PLEBQazB0HUyRYuzfi4clXsKUSgorErmBv
-dl https://www.youtube.com/playlist?list=PLEBQazB0HUyT1WmMONxRZn9NmQ_9CIKhb
-dl https://www.youtube.com/playlist?list=PLEBQazB0HUyTmK2zdwhaf8bLwuEaDH-52
+# Derive a short human label from a YouTube URL.
+derive_label() {
+  local url="$1"
+  if [[ "$url" =~ /@([A-Za-z0-9_.-]+) ]]; then
+    printf '%s\n' "${BASH_REMATCH[1]}"
+  elif [[ "$url" =~ list=([A-Za-z0-9_-]+) ]]; then
+    printf 'playlist-%s\n' "${BASH_REMATCH[1]}"
+  elif [[ "$url" =~ youtube\.com/([^/]+) ]]; then
+    printf '%s\n' "${BASH_REMATCH[1]}"
+  else
+    printf '%s\n' "$url"
+  fi
+}
 
-# Rohde and Schwarz
-dl https://www.youtube.com/playlist?list=PLKxVoO5jUTlvsVtDcqrVn0ybqBVlLj2z8
+# Load the channel list into parallel arrays LABELS and URLS.
+declare -a LABELS=() URLS=()
+load_channels() {
+  [[ -f "$list_file" ]] || die "channel list not found: $list_file"
+  local line label url
+  while IFS= read -r line || [[ -n "$line" ]]; do
+    line="${line%%$'\r'}"
+    line="${line#"${line%%[![:space:]]*}"}"   # ltrim
+    line="${line%"${line##*[![:space:]]}"}"   # rtrim
+    [[ -z "$line" || "$line" == \#* ]] && continue
+    if [[ "$line" =~ ^[^\ ]+\ https:// ]]; then
+      label="${line%% *}"        # "label url" form
+      url="${line#* }"
+    else
+      url="$line"
+      label="$(derive_label "$url")"
+    fi
+    LABELS+=("$label")
+    URLS+=("$url")
+  done < "$list_file"
+}
 
+# Download one channel/url with the current options.
+dl() {
+  local url="$1"
+  local -a args=(--download-archive "$archive" -o "$out_template")
+  (( audio_only )) && args+=(-x)
+  (( dry_run )) && args+=(--simulate)
+  yt-dlp "${args[@]}" "$url"
+}
 
-dl https://www.youtube.com/@em3755/videos
-dl https://www.youtube.com/@parinaznaseri/videos
-dl https://www.youtube.com/@nandland/videos
-dl https://www.youtube.com/@FPGAsforBeginners/videos
+parse_args "$@"
+load_channels
 
-dl https://www.youtube.com/@kanepixels/videos
-dl https://www.youtube.com/@BrianBDouglas/videos
-dl https://www.youtube.com/@youngmoo-kim/videos
-dl https://www.youtube.com/@Wendoverproductions/videos
-dl https://www.youtube.com/TechnologyConnections/videos
-dl https://www.youtube.com/@TheEfficientEngineer/videos
-dl https://www.youtube.com/@BobbyBroccoli/videos
-dl https://www.youtube.com/@veritasium/videos
-dl https://www.youtube.com/@theserialport/videos
-dl https://www.youtube.com/@OldLegoGuy/videos
-dl https://www.youtube.com/@mathemaniac/videos
-dl https://www.youtube.com/@braintruffle/videos
-dl https://www.youtube.com/@2swap/videos
-dl https://www.youtube.com/@EggyBricks/videos
-dl https://www.youtube.com/@3blue1brown/videos
+# --- --list: print configured channels and exit ---
+if (( list_only )); then
+  printf '%-24s %s\n' "LABEL" "URL"
+  for i in "${!LABELS[@]}"; do
+    printf '%-24s %s\n' "${LABELS[i]}" "${URLS[i]}"
+  done
+  echo
+  echo "${#LABELS[@]} channel(s) configured."
+  exit 0
+fi
 
-dl https://www.youtube.com/@VisualElectric_/videos
-dl https://www.youtube.com/@SheafificationOfG/videos
-dl https://www.youtube.com/@JCS/videos
+command -v yt-dlp >/dev/null 2>&1 || die "yt-dlp not found in PATH"
 
-dl https://www.youtube.com/@Aleph0/videos
-dl https://www.youtube.com/@AndrejKarpathy/videos
-dl https://www.youtube.com/@Asianometry/videos
-dl https://www.youtube.com/@BatteryPoweredBricks/videos
-dl https://www.youtube.com/@DavesGarage/videos
-dl https://www.youtube.com/@EngineeringMindset/videos
-dl https://www.youtube.com/@hoe_math/videos
-dl https://www.youtube.com/@knitronics/videos
-dl https://www.youtube.com/@lauriewired/videos
-dl https://www.youtube.com/@lemmino/videos
-dl https://www.youtube.com/@MattKC/videos
-dl https://www.youtube.com/@Mutual_Information/videos
-dl https://www.youtube.com/@naohah/videos
-dl https://www.youtube.com/@NickonPlanetRipple/videos
-dl https://www.youtube.com/@PolylogCS/videos
-dl https://www.youtube.com/@RRSlugger/videos
-dl https://www.youtube.com/@TrikBrix/videos
-dl https://www.youtube.com/@Unbrickme/videos
-dl https://www.youtube.com/@upandatom/videos
-dl https://www.youtube.com/@vintagebricks/videos
-dl https://www.youtube.com/@VK3FS/videos
-dl https://www.youtube.com/@ylraisa/videos
-dl https://www.youtube.com/@YTomS/videos
+total=${#LABELS[@]}
+selected=0
+failed=0
 
+for i in "${!LABELS[@]}"; do
+  label="${LABELS[i]}"
+  url="${URLS[i]}"
 
+  # --only: keep channels whose label or URL contains the match (case-insensitive)
+  if [[ -n "$only" ]]; then
+    lc_label="${label,,}"
+    lc_url="${url,,}"
+    lc_only="${only,,}"
+    if [[ "$lc_label" != *"$lc_only"* && "$lc_url" != *"$lc_only"* ]]; then
+      continue
+    fi
+  fi
 
-# dl https://www.youtube.com/@formula6033/videos
-# dl https://www.youtube.com/@videogameflashback/videos
-# dl https://www.youtube.com/@RockinPixieGaming/videos
-# dl -x https://www.youtube.com/@WeicheWotanWeiche/videos
-# dl https://www.youtube.com/@drspock888/videos
-# dl https://www.youtube.com/@dodoid/videos
+  selected=$((selected + 1))
+  echo "[$selected/$total] $label"
+  echo "       $url"
+  if dl "$url"; then
+    echo
+  else
+    echo "       FAILED: $label" >&2
+    echo
+    failed=$((failed + 1))
+  fi
+done
 
-# https://www.youtube.com/@SoundcircusJM/videos
+if (( selected == 0 )); then
+  [[ -n "$only" ]] && die "no channels matched --only '$only'"
+  die "no channels configured in $list_file"
+fi
 
-# # dl https://www.youtube.com/playlist?list=PLywxmTaHNUNzbZAAHdpAr3vL4ByyaEsSi
-# # dl https://www.youtube.com/playlist?list=PLywxmTaHNUNz2cHKw9uFaIidmxykVceBI
-# # dl https://www.youtube.com/playlist?list=PLywxmTaHNUNyKmgF70q8q3QHYIw_LFbrX
-# # dl https://www.youtube.com/playlist?list=PLUl4u3cNGP63ZWyJMdWIVtyweopUN3xt3
-# # dl https://www.youtube.com/playlist?list=PLUl4u3cNGP62UTc77mJoubhDELSC8lfR0
-# # dl https://www.youtube.com/playlist?list=PLKxVoO5jUTlvsVtDcqrVn0ybqBVlLj2z8
-# # dl https://www.youtube.com/playlist?list=PLbtm7s7Q26xPmLbnvEoU13RqO1Up9wu5r
+echo "Done. Processed $selected channel(s); $failed failed."
