@@ -16,7 +16,6 @@ fi
 base_dir="$(cd "$(dirname "$src")" && pwd)"
 archive="${YT_ARCHIVE:-$base_dir/archive.txt}"
 list_file="${CHANNELS_FILE:-$base_dir/channels.txt}"
-out_template="%(playlist,channel)s/%(title,id)s.%(ext)s"
 
 # --- options (defaults) ---
 only=""
@@ -106,7 +105,7 @@ load_channels() {
 # Download one channel/url with the current options.
 dl() {
   local url="$1"
-  local -a args=(--download-archive "$archive" -o "$out_template")
+  local -a args=(--download-archive "$archive" --channel")
   (( audio_only )) && args+=(-x)
   (( dry_run )) && args+=(--simulate)
   yt-dlp "${args[@]}" "$url"
