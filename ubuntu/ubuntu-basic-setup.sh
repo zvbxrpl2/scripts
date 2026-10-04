@@ -46,6 +46,6 @@ apt -y clean
 snap refresh
 
 pipx ensurepath
-pipx install gallery-dl yt-dlp
-pipx ensurepath
-pipx upgrade gallery-dl yt-dlp
+pipx install --force gallery-dl "yt-dlp[default, curl-cffi]"
+pipx ensurepath --force
+pipx upgrade gallery-dl "yt-dlp[default, curl-cffi]"
